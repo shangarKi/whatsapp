@@ -1,42 +1,37 @@
-const venom = require('venom-bot');
-const axios  = require('axios');
-const express = require('express');
+import venom from 'venom-bot';
+import axios from 'axios';
+import express from 'express';
 
 const app = express();
-app.get('/', (_, res) => res.send('OK')); // Ping for Railway
-app.listen(process.env.PORT || 3000);
+const PORT = process.env.PORT || 3000;
 
-// Your live webhook URL
-const N8N_WEBHOOK = 'https://primary-production-cd26.up.railway.app/webhook/whatsapp-ai';
+app.get('/', (_, res) => res.send('WA Bot Live!'));
+app.listen(PORT, () => console.log(`Server running on ${PORT}`));
+
+const WEBHOOK_URL = process.env.N8N_WEBHOOK;
 
 venom
   .create({
     session: 'waibot',
     headless: true,
-    browserArgs: [
-      '--no-sandbox',
-      '--disable-setuid-sandbox',
-      '--disable-dev-shm-usage'
-    ],
-    updatesLog: false,
-    disableWelcome: true
+    browserArgs: ['--no-sandbox', '--disable-setuid-sandbox'],
   })
-  .then(start)
-  .catch(err => console.error('Venom init error →', err));
-
-async function start(client) {
-  client.onMessage(async (message) => {
-    if (!message.isGroupMsg && message.body) {
-      try {
-        const { data } = await axios.post(N8N_WEBHOOK, {
-          message: message.body,
-          from: message.from
-        });
-        await client.sendText(message.from, data.reply);
-      } catch (e) {
-        console.error('Webhook/AI error →', e.message);
-        await client.sendText(message.from, 'Bot error occurred.');
+  .then((client) => {
+    client.onMessage(async (message) => {
+      if (!message.isGroupMsg && message.body) {
+        try {
+          const { data } = await axios.post(WEBHOOK_URL, {
+            message: message.body,
+            from: message.from,
+          });
+          await client.sendText(message.from, data.reply);
+        } catch (err) {
+          console.error('Webhook Error:', err.message);
+          await client.sendText(message.from, '❌ Bot error.');
+        }
       }
-    }
+    });
+  })
+  .catch((err) => {
+    console.error('Venom init error →', err);
   });
-}
