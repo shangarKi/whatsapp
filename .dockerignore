@@ -1,0 +1,24 @@
+# ─── Node build artefacts ──────────────────────────────────────
+node_modules/          # always re‑installed in the image
+npm-debug.log*
+yarn-error.log*
+
+# ─── Local Venom session tokens (keep on host/volume) ──────────
+tokens/
+
+# ─── Git metadata ──────────────────────────────────────────────
+.git/
+.gitignore
+
+# ─── Docs & misc ───────────────────────────────────────────────
+Dockerfile
+README.md
+*.md
+
+# ─── Environment files ────────────────────────────────────────
+.env
+*.env
+
+# ─── OS / editor clutter ───────────────────────────────────────
+.DS_Store
+Thumbs.db
